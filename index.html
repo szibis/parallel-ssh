@@ -8,8 +8,8 @@
     
     <title>Welcome to Parallel-SSH’s documentation! &mdash; Parallel-SSH 0.3 documentation</title>
     
-    <link rel="stylesheet" href="static/default.css" type="text/css" />
-    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -20,9 +20,9 @@
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="static/jquery.js"></script>
-    <script type="text/javascript" src="static/underscore.js"></script>
-    <script type="text/javascript" src="static/doctools.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Parallel-SSH 0.3 documentation" href="#" /> 
   </head>
   <body>
@@ -54,7 +54,7 @@
 See SSHClient and ParallelSSHClient</p>
 <dl class="class">
 <dt id="pssh.ParallelSSHClient">
-<em class="property">class </em><tt class="descclassname">pssh.</tt><tt class="descname">ParallelSSHClient</tt><big>(</big><em>hosts</em>, <em>user=None</em>, <em>password=None</em>, <em>port=None</em>, <em>pool_size=10</em><big>)</big><a class="headerlink" href="#pssh.ParallelSSHClient" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pssh.</tt><tt class="descname">ParallelSSHClient</tt><big>(</big><em>hosts</em>, <em>user=None</em>, <em>password=None</em>, <em>port=None</em>, <em>pkey=None</em>, <em>pool_size=10</em><big>)</big><a class="headerlink" href="#pssh.ParallelSSHClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses <a class="reference internal" href="#pssh.SSHClient" title="pssh.SSHClient"><tt class="xref py py-mod docutils literal"><span class="pre">pssh.SSHClient</span></tt></a>, performs tasks over SSH on multiple hosts in     parallel</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -66,29 +66,40 @@ See SSHClient and ParallelSSHClient</p>
 <li><strong>user</strong> (<em>str</em>) &#8211; (Optional) User to login as. Defaults to logged in user or        user from ~/.ssh/config or /etc/ssh/ssh_config if set</li>
 <li><strong>password</strong> (<em>str</em>) &#8211; (Optional) Password to use for login. Defaults to        no password</li>
 <li><strong>port</strong> (<em>int</em>) &#8211; (Optional) Port number to use for SSH connection. Defaults        to None which uses SSH default</li>
+<li><strong>pkey</strong> (<tt class="xref py py-mod docutils literal"><span class="pre">paramiko.PKey</span></tt>) &#8211; (Optional) Client&#8217;s private key to be used to connect with</li>
 <li><strong>pool_size</strong> &#8211; (Optional) Greenlet pool size. Controls on how many        hosts to execute tasks in parallel. Defaults to 10</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first">paramiko.AuthenticationException on authentication error</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first">AuthenticationException on authentication error</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first">ssh_client.UnknownHostException on DNS resolution error</p>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first">UnknownHostException on DNS resolution error</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">ssh_client.ConnectionErrorException on error connecting</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">ConnectionErrorException on error connecting</p>
 </td>
 </tr>
 </tbody>
 </table>
 <p><strong>Example</strong></p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">ParallelSSHClient</span><span class="p">([</span><span class="s">&#39;myhost1&#39;</span><span class="p">,</span> <span class="s">&#39;myhost2&#39;</span><span class="p">])</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pssh</span> <span class="kn">import</span> <span class="n">ParallelSSHClient</span><span class="p">,</span> <span class="n">AuthenticationException</span><span class="p">,</span>                        <span class="n">UnknownHostException</span><span class="p">,</span> <span class="n">ConnectionErrorException</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span> <span class="n">client</span> <span class="o">=</span> <span class="n">ParallelSSHClient</span><span class="p">([</span><span class="s">&#39;myhost1&#39;</span><span class="p">,</span> <span class="s">&#39;myhost2&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">except</span> <span class="p">(</span><span class="n">AuthenticationException</span><span class="p">,</span> <span class="n">UnknownHostException</span><span class="p">,</span> <span class="n">ConnectionErrorException</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span> <span class="k">return</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cmds</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">exec_command</span><span class="p">(</span><span class="s">&#39;ls -ltrh /tmp/aasdfasdf&#39;</span><span class="p">,</span> <span class="n">sudo</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="n">client</span><span class="o">.</span><span class="n">get_stdout</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span> <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">cmds</span><span class="p">]</span>
 <span class="go">[myhost1]     ls: cannot access /tmp/aasdfasdf: No such file or directory</span>
 <span class="go">[myhost2]     ls: cannot access /tmp/aasdfasdf: No such file or directory</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">output</span>
 <span class="go">[{&#39;myhost1&#39;: {&#39;exit_code&#39;: 2}}, {&#39;myhost2&#39;: {&#39;exit_code&#39;: 2}}]</span>
+</pre></div>
+</div>
+<p><strong>Example with specified private key</strong></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">paramiko</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client_key</span> <span class="o">=</span> <span class="n">paramiko</span><span class="o">.</span><span class="n">RSAKey</span><span class="o">.</span><span class="n">from_private_key_file</span><span class="p">(</span><span class="s">&#39;user.key&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">ParallelSSHClient</span><span class="p">([</span><span class="s">&#39;myhost1&#39;</span><span class="p">,</span> <span class="s">&#39;myhost2&#39;</span><span class="p">],</span> <span class="n">pkey</span><span class="o">=</span><span class="n">client_key</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -216,7 +227,7 @@ connections.</p>
 
 <dl class="class">
 <dt id="pssh.SSHClient">
-<em class="property">class </em><tt class="descclassname">pssh.</tt><tt class="descname">SSHClient</tt><big>(</big><em>host</em>, <em>user=None</em>, <em>password=None</em>, <em>port=None</em><big>)</big><a class="headerlink" href="#pssh.SSHClient" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">pssh.</tt><tt class="descname">SSHClient</tt><big>(</big><em>host</em>, <em>user=None</em>, <em>password=None</em>, <em>port=None</em>, <em>pkey=None</em><big>)</big><a class="headerlink" href="#pssh.SSHClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wrapper class over paramiko.SSHClient with sane defaults
 Honours ~/.ssh/config and /etc/ssh/ssh_config entries for host username     overrides</p>
 <p>Connect to host honouring any user set configuration in ~/.ssh/config         or /etc/ssh/ssh_config</p>
@@ -227,16 +238,19 @@ Honours ~/.ssh/config and /etc/ssh/ssh_config entries for host username     over
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>host</strong> (<em>str</em>) &#8211; Hostname to connect to</li>
 <li><strong>user</strong> (<em>str</em>) &#8211; (Optional) User to login as. Defaults to logged in user or         user from ~/.ssh/config if set</li>
+<li><strong>password</strong> (<em>str</em>) &#8211; (Optional) Password to use for login. Defaults to        no password</li>
+<li><strong>port</strong> (<em>int</em>) &#8211; (Optional) Port number to use for SSH connection. Defaults        to None which uses SSH default</li>
+<li><strong>pkey</strong> (<tt class="xref py py-mod docutils literal"><span class="pre">paramiko.PKey</span></tt>) &#8211; (Optional) Client&#8217;s private key to be used to connect with</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first">ssh_client.AuthenticationException on authentication error</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first">AuthenticationException on authentication error</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first">ssh_client.UnknownHostException on DNS resolution error</p>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first">UnknownHostException on DNS resolution error</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">ssh_client.ConnectionErrorException on error connecting</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">ConnectionErrorException on error connecting</p>
 </td>
 </tr>
 </tbody>
@@ -346,7 +360,7 @@ Honours ~/.ssh/config and /etc/ssh/ssh_config entries for host username     over
 
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="sources/index.txt"
+    <li><a href="_sources/index.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
