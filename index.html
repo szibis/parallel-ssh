@@ -56,7 +56,8 @@ See SSHClient and ParallelSSHClient</p>
 <dt id="pssh.ParallelSSHClient">
 <em class="property">class </em><tt class="descclassname">pssh.</tt><tt class="descname">ParallelSSHClient</tt><big>(</big><em>hosts</em>, <em>user=None</em>, <em>password=None</em>, <em>port=None</em>, <em>pkey=None</em>, <em>pool_size=10</em><big>)</big><a class="headerlink" href="#pssh.ParallelSSHClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uses <a class="reference internal" href="#pssh.SSHClient" title="pssh.SSHClient"><tt class="xref py py-mod docutils literal"><span class="pre">pssh.SSHClient</span></tt></a>, performs tasks over SSH on multiple hosts in     parallel.</p>
-<p>Connections to hosts are established in parallel when an object of this class     is created, therefor any connection and/or authentication failures will happen     on creation and need to be caught.</p>
+<p>Connections to hosts are established in parallel when an object of this
+class is created, therefor any connection and/or authentication exceptions     will happen on creation and need to be caught.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -95,6 +96,29 @@ See SSHClient and ParallelSSHClient</p>
 <span class="go">[myhost2]     ls: cannot access /tmp/aasdfasdf: No such file or directory</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">output</span>
 <span class="go">[{&#39;myhost1&#39;: {&#39;exit_code&#39;: 2}}, {&#39;myhost2&#39;: {&#39;exit_code&#39;: 2}}]</span>
+</pre></div>
+</div>
+<p><strong>Example with returned stdout and stderr buffers</strong></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pssh</span> <span class="kn">import</span> <span class="n">ParallelSSHClient</span><span class="p">,</span> <span class="n">AuthenticationException</span><span class="p">,</span>                        <span class="n">UnknownHostException</span><span class="p">,</span> <span class="n">ConnectionErrorException</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span> <span class="n">client</span> <span class="o">=</span> <span class="n">ParallelSSHClient</span><span class="p">([</span><span class="s">&#39;myhost1&#39;</span><span class="p">,</span> <span class="s">&#39;myhost2&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">except</span> <span class="p">(</span><span class="n">AuthenticationException</span><span class="p">,</span> <span class="n">UnknownHostException</span><span class="p">,</span> <span class="n">ConnectionErrorException</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span> <span class="k">return</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cmds</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">exec_command</span><span class="p">(</span><span class="s">&#39;ls -ltrh /tmp/aasdfasdf&#39;</span><span class="p">,</span> <span class="n">sudo</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="n">client</span><span class="o">.</span><span class="n">get_stdout</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">return_buffers</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">cmds</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">output</span>
+<span class="go">[{&#39;myhost1&#39;: {&#39;exit_code&#39;: 2,</span>
+<span class="go">              &#39;stdout&#39; : &lt;generator object &lt;genexpr&gt;,</span>
+<span class="go">              &#39;stderr&#39; : &lt;generator object &lt;genexpr&gt;,}},</span>
+<span class="go"> {&#39;myhost2&#39;: {&#39;exit_code&#39;: 2,</span>
+<span class="go">              &#39;stdout&#39; : &lt;generator object &lt;genexpr&gt;,</span>
+<span class="go">              &#39;stderr&#39; : &lt;generator object &lt;genexpr&gt;,}},</span>
+<span class="go">              ]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">host_stdout</span> <span class="ow">in</span> <span class="n">output</span><span class="p">:</span>
+<span class="go">    ... for line in host_stdout[host_output.keys()[0]][&#39;stdout&#39;]:</span>
+<span class="go">        ... print line</span>
+<span class="go">            ls: cannot access /tmp/aasdfasdf: No such file or directory</span>
+<span class="go">            ls: cannot access /tmp/aasdfasdf: No such file or directory</span>
 </pre></div>
 </div>
 <p><strong>Example with specified private key</strong></p>
@@ -204,21 +228,32 @@ their output as many times as you want.</p>
 
 <dl class="method">
 <dt id="pssh.ParallelSSHClient.get_stdout">
-<tt class="descname">get_stdout</tt><big>(</big><em>greenlet</em><big>)</big><a class="headerlink" href="#pssh.ParallelSSHClient.get_stdout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print stdout from greenlet and return exit code for host</p>
+<tt class="descname">get_stdout</tt><big>(</big><em>greenlet</em>, <em>return_buffers=False</em><big>)</big><a class="headerlink" href="#pssh.ParallelSSHClient.get_stdout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get/print stdout from greenlet and return exit code for host</p>
 <p><tt class="xref py py-mod docutils literal"><span class="pre">pssh.get_stdout</span></tt> will close the open SSH channel but this does
 <strong>not</strong> close the established connection to the remote host, only the
 authenticated SSH channel within it. This is standard practise
 in SSH when a command has finished executing. A new command
 will open a new channel which is very fast on already established
 connections.</p>
+<p>By default, stdout and stderr will be logged via the logger named         <tt class="docutils literal"><span class="pre">host_logger</span></tt> unless <tt class="docutils literal"><span class="pre">return_buffers</span></tt> is set to <tt class="docutils literal"><span class="pre">True</span></tt> in which case         both buffers are instead returned along with the exit status.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>greenlet</strong> (<tt class="xref py py-mod docutils literal"><span class="pre">gevent.Greenlet</span></tt>) &#8211; Greenlet object containing an         SSH channel reference, hostname, stdout and stderr buffers</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>greenlet</strong> (<tt class="xref py py-mod docutils literal"><span class="pre">gevent.Greenlet</span></tt>) &#8211; Greenlet object containing an         SSH channel reference, hostname, stdout and stderr buffers</li>
+<li><strong>return_buffers</strong> (<em>bool</em>) &#8211; Flag to turn on returning stdout and stderr         buffers along with exit code. Defaults to off.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Dictionary containing <tt class="docutils literal"><span class="pre">{host:</span> <span class="pre">{'exit_code':</span> <span class="pre">exit</span> <span class="pre">code}}</span></tt> entry         for example <tt class="docutils literal"><span class="pre">{'myhost1':</span> <span class="pre">{'exit_code':</span> <span class="pre">0}}</span></tt></td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">Dictionary containing <tt class="docutils literal"><span class="pre">{host:</span> <span class="pre">{'exit_code':</span> <span class="pre">exit</span> <span class="pre">code}}</span></tt> entry         for example <tt class="docutils literal"><span class="pre">{'myhost1':</span> <span class="pre">{'exit_code':</span> <span class="pre">0}}</span></tt></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">With <tt class="docutils literal"><span class="pre">return_buffers=True</span></tt>: <tt class="docutils literal"><span class="pre">{'myhost1':</span> <span class="pre">{'exit_code':</span> <span class="pre">0,</span>
+<span class="pre">'stdout'</span> <span class="pre">:</span> <span class="pre">&lt;iterable&gt;,</span>
+<span class="pre">'stderr'</span> <span class="pre">:</span> <span class="pre">&lt;iterable&gt;,}}</span></tt></p>
+</td>
 </tr>
 </tbody>
 </table>
