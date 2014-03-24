@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Welcome to Parallel-SSH’s documentation! &mdash; Parallel-SSH 0.3 documentation</title>
+    <title>Welcome to Parallel-SSH’s documentation! &mdash; Parallel-SSH 0.4 documentation</title>
     
     <link rel="stylesheet" href="static/default.css" type="text/css" />
     <link rel="stylesheet" href="static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.3',
+        VERSION:     '0.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="static/jquery.js"></script>
     <script type="text/javascript" src="static/underscore.js"></script>
     <script type="text/javascript" src="static/doctools.js"></script>
-    <link rel="top" title="Parallel-SSH 0.3 documentation" href="#" /> 
+    <link rel="top" title="Parallel-SSH 0.4 documentation" href="#" /> 
   </head>
   <body>
     <div class="related">
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="#">Parallel-SSH 0.3 documentation</a> &raquo;</li> 
+        <li><a href="#">Parallel-SSH 0.4 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -55,7 +55,8 @@ See SSHClient and ParallelSSHClient</p>
 <dl class="class">
 <dt id="pssh.ParallelSSHClient">
 <em class="property">class </em><tt class="descclassname">pssh.</tt><tt class="descname">ParallelSSHClient</tt><big>(</big><em>hosts</em>, <em>user=None</em>, <em>password=None</em>, <em>port=None</em>, <em>pkey=None</em>, <em>pool_size=10</em><big>)</big><a class="headerlink" href="#pssh.ParallelSSHClient" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses <a class="reference internal" href="#pssh.SSHClient" title="pssh.SSHClient"><tt class="xref py py-mod docutils literal"><span class="pre">pssh.SSHClient</span></tt></a>, performs tasks over SSH on multiple hosts in     parallel</p>
+<dd><p>Uses <a class="reference internal" href="#pssh.SSHClient" title="pssh.SSHClient"><tt class="xref py py-mod docutils literal"><span class="pre">pssh.SSHClient</span></tt></a>, performs tasks over SSH on multiple hosts in     parallel.</p>
+<p>Connections to hosts are established in parallel when an object of this class     is created, therefor any connection and/or authentication failures will happen     on creation and need to be caught.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -71,13 +72,13 @@ See SSHClient and ParallelSSHClient</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first">AuthenticationException on authentication error</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#pssh.AuthenticationException" title="pssh.AuthenticationException"><tt class="xref py py-mod docutils literal"><span class="pre">pssh.AuthenticationException</span></tt></a> on authentication error</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first">UnknownHostException on DNS resolution error</p>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#pssh.UnknownHostException" title="pssh.UnknownHostException"><tt class="xref py py-mod docutils literal"><span class="pre">pssh.UnknownHostException</span></tt></a> on DNS resolution error</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">ConnectionErrorException on error connecting</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pssh.ConnectionErrorException" title="pssh.ConnectionErrorException"><tt class="xref py py-mod docutils literal"><span class="pre">pssh.ConnectionErrorException</span></tt></a> on error connecting</p>
 </td>
 </tr>
 </tbody>
@@ -204,11 +205,9 @@ their output as many times as you want.</p>
 <dl class="method">
 <dt id="pssh.ParallelSSHClient.get_stdout">
 <tt class="descname">get_stdout</tt><big>(</big><em>greenlet</em><big>)</big><a class="headerlink" href="#pssh.ParallelSSHClient.get_stdout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print stdout from greenlet and return exit code for host
-:param greenlet: Greenlet object containing an         SSH channel reference, hostname, stdout and stderr buffers
-:type greenlet: <tt class="xref py py-mod docutils literal"><span class="pre">gevent.Greenlet</span></tt></p>
-<p><tt class="xref py py-mod docutils literal"><span class="pre">pssh.get_stdout</span></tt> will close the open SSH channel but this does <strong>not</strong>
-close the established connection to the remote host, only the
+<dd><p>Print stdout from greenlet and return exit code for host</p>
+<p><tt class="xref py py-mod docutils literal"><span class="pre">pssh.get_stdout</span></tt> will close the open SSH channel but this does
+<strong>not</strong> close the established connection to the remote host, only the
 authenticated SSH channel within it. This is standard practise
 in SSH when a command has finished executing. A new command
 will open a new channel which is very fast on already established
@@ -217,7 +216,9 @@ connections.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Dictionary containing {host: {&#8216;exit_code&#8217;: exit code}} entry         for example {&#8216;myhost1&#8217;: {&#8216;exit_code&#8217;: 0}}</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>greenlet</strong> (<tt class="xref py py-mod docutils literal"><span class="pre">gevent.Greenlet</span></tt>) &#8211; Greenlet object containing an         SSH channel reference, hostname, stdout and stderr buffers</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Dictionary containing <tt class="docutils literal"><span class="pre">{host:</span> <span class="pre">{'exit_code':</span> <span class="pre">exit</span> <span class="pre">code}}</span></tt> entry         for example <tt class="docutils literal"><span class="pre">{'myhost1':</span> <span class="pre">{'exit_code':</span> <span class="pre">0}}</span></tt></td>
 </tr>
 </tbody>
 </table>
@@ -244,13 +245,13 @@ Honours ~/.ssh/config and /etc/ssh/ssh_config entries for host username     over
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first">AuthenticationException on authentication error</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#pssh.AuthenticationException" title="pssh.AuthenticationException"><tt class="xref py py-mod docutils literal"><span class="pre">pssh.AuthenticationException</span></tt></a> on authentication error</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first">UnknownHostException on DNS resolution error</p>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#pssh.UnknownHostException" title="pssh.UnknownHostException"><tt class="xref py py-mod docutils literal"><span class="pre">pssh.UnknownHostException</span></tt></a> on DNS resolution error</p>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">ConnectionErrorException on error connecting</p>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#pssh.ConnectionErrorException" title="pssh.ConnectionErrorException"><tt class="xref py py-mod docutils literal"><span class="pre">pssh.ConnectionErrorException</span></tt></a> on error connecting</p>
 </td>
 </tr>
 </tbody>
@@ -389,7 +390,7 @@ Honours ~/.ssh/config and /etc/ssh/ssh_config entries for host username     over
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="#">Parallel-SSH 0.3 documentation</a> &raquo;</li> 
+        <li><a href="#">Parallel-SSH 0.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
