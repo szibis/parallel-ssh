@@ -64,12 +64,11 @@ class is created, therefor any connection and/or authentication exceptions     w
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>hosts</strong> (<em>list(str)</em>) &#8211; Hosts to connect to</li>
-<li><strong>pool_size</strong> (<em>int</em>) &#8211; Pool size - how many commands to run in parallel</li>
 <li><strong>user</strong> (<em>str</em>) &#8211; (Optional) User to login as. Defaults to logged in user or        user from ~/.ssh/config or /etc/ssh/ssh_config if set</li>
 <li><strong>password</strong> (<em>str</em>) &#8211; (Optional) Password to use for login. Defaults to        no password</li>
 <li><strong>port</strong> (<em>int</em>) &#8211; (Optional) Port number to use for SSH connection. Defaults        to None which uses SSH default</li>
 <li><strong>pkey</strong> (<tt class="xref py py-mod docutils literal"><span class="pre">paramiko.PKey</span></tt>) &#8211; (Optional) Client&#8217;s private key to be used to connect with</li>
-<li><strong>pool_size</strong> &#8211; (Optional) Greenlet pool size. Controls on how many        hosts to execute tasks in parallel. Defaults to 10</li>
+<li><strong>pool_size</strong> (<em>int</em>) &#8211; (Optional) Greenlet pool size. Controls on how many        hosts to execute tasks in parallel. Defaults to 10</li>
 </ul>
 </td>
 </tr>
