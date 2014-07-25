@@ -212,6 +212,36 @@ class SSHClient(object):
             logger.info("Copied local file %s to remote destination %s:%s",
                         local_file, self.host, remote_file)
 
+    def get_file(self, remote_file, local_file):
+        """Get remote file from host via SFTP/SCP
+
+        Get is done natively using SFTP/SCP version 2 protocol, no scp command \
+        is used or required.
+
+        :param local_file: Local filepath to copy to remote host
+        :type local_file: str
+        :param remote_file: Remote filepath on remote host to copy file to
+        :type remote_file: str
+        """
+        sftp = self._make_sftp()
+        destination = remote_file.split(os.path.sep)
+        filename = destination[0] if len(destination) == 1 else destination[-1]
+        remote_file = os.path.sep.join(destination)
+        destination = destination[:-1]
+        for directory in destination:
+            try:
+                os.stat(directory)
+            except:
+                os.mkdir(directory) 
+        try:
+            sftp.get(remote_file, local_file)
+        except Exception, error:
+            logger.error("Error occured getting file from host %s - %s",
+                         self.host, error)
+        else:
+            logger.info("Copied remote file %s:%s to local destination %s",
+                        self.host, remote_file, local_file)
+
 class ParallelSSHClient(object):
     """Uses :mod:`pssh.SSHClient`, performs tasks over SSH on multiple hosts in \
     parallel.
@@ -431,6 +461,36 @@ class ParallelSSHClient(object):
                                                 port=self.port)
         return self.host_clients[host].copy_file(local_file, remote_file)
 
+    def get_file(self, remote_file, local_file):
+        """Copy remote file to local file in parallel
+
+        :param local_file: Local filepath to copy to remote host
+        :type local_file: str
+        :param remote_file: Remote filepath on remote host to copy file to
+        :type remote_file: str
+
+        .. note ::
+          Local directories in `local_file` that do not exist will be
+          created as long as permissions allow.
+
+        .. note ::
+          Path separation is handled client side so it is possible to copy
+          to/from hosts with differing path separators, like from/to Linux
+          and Windows.
+
+        :rtype: List(:mod:`gevent.Greenlet`) of greenlets for remote copy \
+        commands
+        """
+        return [self.pool.spawn(self._get_file, host, remote_file, local_file)
+                for host in self.hosts]
+
+    def _get_file(self, host, local_file, remote_file):
+        """Make sftp client, copy file"""
+        if not self.host_clients[host]:
+            self.host_clients[host] = SSHClient(host, user=self.user,
+                                                password=self.password,
+                                                port=self.port)
+        return self.host_clients[host].get_file(remote_file, local_file)
     
 def test():
     client = SSHClient('localhost')
